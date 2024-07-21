@@ -2,67 +2,77 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] private GameObject CameraPivot;
-    [SerializeField] private float cameraSpeedZoom = 100;
-    [SerializeField] private float cameraMoveSpeedX = 300;
-    [SerializeField] private float cameraMoveSpeedY = 800;
+	[SerializeField] private GameObject CameraPivot;
+	[SerializeField] private float cameraSpeedZoom = 100;
+	[SerializeField] private float cameraMoveSpeedX = 300;
+	[SerializeField] private float cameraMoveSpeedY = 800;
 
-    private float cameraPositionOffset = 0;
-    private float mouseRotationX;
-    private float mouseRotationY;
-    private Camera playerCamera;
+	private float cameraPositionOffset = 0;
+	private float mouseRotationX;
+	private float mouseRotationY;
+	private Camera playerCamera;
 
-    const float MIN_CAMERA_POSITION = -7f;
-    const float MAX_CAMERA_POSITION = -4f;
+	const float MIN_CAMERA_POSITION = -7f;
+	const float MAX_CAMERA_POSITION = -4f;
 
-    void Start()
-    {
-        playerCamera = GetComponentInChildren<Camera>();
+	private Quaternion _rotation;
+	private bool isLockedRotation = false;
 
-        cameraPositionOffset = playerCamera.transform.position.z;
-        if (cameraPositionOffset < MIN_CAMERA_POSITION){
-            cameraPositionOffset = MIN_CAMERA_POSITION;
-        }
-        else if (cameraPositionOffset > MAX_CAMERA_POSITION){
-            cameraPositionOffset = MAX_CAMERA_POSITION;
-        }
-    }
+	void Start()
+	{
+		playerCamera = GetComponentInChildren<Camera>();
 
-    void Update()
-    {
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+		cameraPositionOffset = playerCamera.transform.position.z;
+		if (cameraPositionOffset < MIN_CAMERA_POSITION)
+		{
+			cameraPositionOffset = MIN_CAMERA_POSITION;
+		}
+		else if (cameraPositionOffset > MAX_CAMERA_POSITION)
+		{
+			cameraPositionOffset = MAX_CAMERA_POSITION;
+		}
+	}
 
-        mouseX = Mathf.Clamp(mouseX, -1, 1);
-        mouseY = Mathf.Clamp(mouseY, -1, 1);
+	void Update()
+	{
+		float mouseX = Input.GetAxis("Mouse X");
+		float mouseY = Input.GetAxis("Mouse Y");
 
-        mouseRotationX -= mouseY * cameraMoveSpeedX * Time.deltaTime;
-        mouseRotationX = Mathf.Clamp(mouseRotationX, -20, 50);
-        mouseRotationY = mouseX * cameraMoveSpeedY * Time.deltaTime;
+		mouseX = Mathf.Clamp(mouseX, -1, 1);
+		mouseY = Mathf.Clamp(mouseY, -1, 1);
 
-        cameraPositionOffset = Input.GetAxis("Mouse ScrollWheel") * cameraSpeedZoom * Time.deltaTime;
-    }
+		mouseRotationX -= mouseY * cameraMoveSpeedX * Time.deltaTime;
+		mouseRotationX = Mathf.Clamp(mouseRotationX, -20, 50);
+		mouseRotationY = mouseX * cameraMoveSpeedY * Time.deltaTime;
 
-    void LateUpdate()
-    {
-        rotateCamera();
-        zoomCamera();
-    }
+		cameraPositionOffset = Input.GetAxis("Mouse ScrollWheel") * cameraSpeedZoom * Time.deltaTime;
+	}
 
-    protected void rotateCamera()
-    {
-        CameraPivot.transform.Rotate(0, mouseRotationY, 0);
-        CameraPivot.transform.eulerAngles = new Vector3(mouseRotationX, CameraPivot.transform.eulerAngles.y, 0);
-    }
+	void LateUpdate()
+	{
+		rotateCamera();
+		zoomCamera();
+	}
 
-    protected void zoomCamera()
-    {
-        bool canCloserCamera = cameraPositionOffset < 0 && playerCamera.transform.localPosition.z > MIN_CAMERA_POSITION;
-        bool canAwayCamera = cameraPositionOffset > 0 && playerCamera.transform.localPosition.z < MAX_CAMERA_POSITION ;
+	protected void rotateCamera()
+	{
+		CameraPivot.transform.Rotate(0, mouseRotationY, 0);
+		CameraPivot.transform.eulerAngles = new Vector3(mouseRotationX, CameraPivot.transform.eulerAngles.y, 0);
+	}
 
-        if (canAwayCamera || canCloserCamera)
-        {
-            playerCamera.transform.Translate(0, 0, cameraPositionOffset);
-        }
-    }
+	protected void zoomCamera()
+	{
+		bool canCloserCamera = cameraPositionOffset < 0 && playerCamera.transform.localPosition.z > MIN_CAMERA_POSITION;
+		bool canAwayCamera = cameraPositionOffset > 0 && playerCamera.transform.localPosition.z < MAX_CAMERA_POSITION;
+
+		if (canAwayCamera || canCloserCamera)
+		{
+			playerCamera.transform.Translate(0, 0, cameraPositionOffset);
+		}
+	}
+
+	public void setPosition(Vector3 meshPosition)
+	{
+		CameraPivot.transform.localPosition = meshPosition;
+	}
 }
