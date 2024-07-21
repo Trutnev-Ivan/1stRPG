@@ -75,4 +75,11 @@ public class CameraController : MonoBehaviour
 	{
 		CameraPivot.transform.localPosition = meshPosition;
 	}
+
+	public Vector3 getCameraForwardVector()
+	{
+		Vector3 forward = CameraPivot.transform.forward;
+		forward.y = 0;
+		return forward;
+	}
 }
