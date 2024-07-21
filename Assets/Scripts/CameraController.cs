@@ -16,7 +16,6 @@ public class CameraController : MonoBehaviour
 	const float MAX_CAMERA_POSITION = -4f;
 
 	private Quaternion _rotation;
-	private bool isLockedRotation = false;
 
 	void Start()
 	{
@@ -74,5 +73,12 @@ public class CameraController : MonoBehaviour
 	public void setPosition(Vector3 meshPosition)
 	{
 		CameraPivot.transform.localPosition = meshPosition;
+	}
+
+	public Vector3 getCameraForwardVector()
+	{
+		Vector3 forward = CameraPivot.transform.forward;
+		forward.y = 0;
+		return forward;
 	}
 }
