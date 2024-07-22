@@ -4,12 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(CameraController))]
 public class MovementController : MonoBehaviour
 {
-	private float speed = 400f;
 	private CameraController cameraController;
-	[SerializeField] private Rigidbody PlayerMesh;
-
-	private float rotateSpeed = 50.0f;
 	
+	[SerializeField] private Rigidbody PlayerMesh;
+	[SerializeField] private float speed = 800f;
+	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
+	[SerializeField] private float rotateSpeed45 = 20.0f;
+	[SerializeField] private float rotateSpeedHorizontal = 55.0f;
+
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
@@ -33,12 +35,12 @@ public class MovementController : MonoBehaviour
 					cameraForward.x * Mathf.Cos(angle) - cameraForward.z * Mathf.Sin(angle),
 					0,
 					cameraForward.z * Mathf.Cos(angle) + cameraForward.x * Mathf.Sin(angle));
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, vec, Time.deltaTime * rotateSpeed);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, vec, Time.deltaTime * rotateSpeed45);
 			}
 			// move forward / back
 			else
 			{
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeed);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
 			}
 			
 			PlayerMesh.velocity = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
@@ -48,11 +50,13 @@ public class MovementController : MonoBehaviour
 			Vector3 cameraForward = cameraController.getCameraForwardVector();
 			float k = horizontalMove * Time.deltaTime;
 
-			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeed);
+			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeedHorizontal);
 			PlayerMesh.velocity = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
 		}
 		
 		cameraController.setPosition(PlayerMesh.transform.localPosition);
+
+		PlayerMesh.velocity = new Vector3(PlayerMesh.velocity.x, Physics.gravity.y * PlayerMesh.mass, PlayerMesh.velocity.z);
 	}
 
 	protected float getAngle(float vertical, float horizontal)

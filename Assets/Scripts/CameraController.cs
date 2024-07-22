@@ -31,11 +31,11 @@ public class CameraController : MonoBehaviour
 			cameraPositionOffset = MAX_CAMERA_POSITION;
 		}
 	}
-
+	
 	void Update()
 	{
-		float mouseX = Input.GetAxis("Mouse X");
-		float mouseY = Input.GetAxis("Mouse Y");
+		float mouseX = Input.GetAxisRaw("Mouse X");
+		float mouseY = Input.GetAxisRaw("Mouse Y");
 
 		mouseX = Mathf.Clamp(mouseX, -1, 1);
 		mouseY = Mathf.Clamp(mouseY, -1, 1);
@@ -45,10 +45,7 @@ public class CameraController : MonoBehaviour
 		mouseRotationY = mouseX * cameraMoveSpeedY * Time.deltaTime;
 
 		cameraPositionOffset = Input.GetAxis("Mouse ScrollWheel") * cameraSpeedZoom * Time.deltaTime;
-	}
-
-	void LateUpdate()
-	{
+		
 		rotateCamera();
 		zoomCamera();
 	}
