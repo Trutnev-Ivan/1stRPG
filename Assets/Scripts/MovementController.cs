@@ -21,6 +21,8 @@ public class MovementController : MonoBehaviour
 	{
 		float verticalMove = Input.GetAxisRaw("Vertical");
 		float horizontalMove = Input.GetAxisRaw("Horizontal");
+
+		Vector3 vecTransorm = new Vector3(0, 0, 0);
 		
 		if (verticalMove != 0)
 		{
@@ -40,10 +42,13 @@ public class MovementController : MonoBehaviour
 			// move forward / back
 			else
 			{
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward + PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
 			}
 			
-			PlayerMesh.velocity = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
+			// PlayerMesh.velocity = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
+			
+			// PlayerMesh.transform.Translate(PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed, Space.World);
+			vecTransorm = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
 		}
 		else if (horizontalMove != 0)
 		{
@@ -51,12 +56,16 @@ public class MovementController : MonoBehaviour
 			float k = horizontalMove * Time.deltaTime;
 
 			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeedHorizontal);
-			PlayerMesh.velocity = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
+			// PlayerMesh.velocity = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
+
+			// PlayerMesh.transform.Translate(PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove), Space.World);
+			vecTransorm = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
 		}
 		
 		cameraController.setPosition(PlayerMesh.transform.localPosition);
 
-		PlayerMesh.velocity = new Vector3(PlayerMesh.velocity.x, Physics.gravity.y * PlayerMesh.mass, PlayerMesh.velocity.z);
+		// PlayerMesh.velocity = new Vector3(PlayerMesh.velocity.x, Physics.gravity.y * PlayerMesh.mass, PlayerMesh.velocity.z);
+		PlayerMesh.transform.Translate(vecTransorm, Space.World);
 	}
 
 	protected float getAngle(float vertical, float horizontal)
