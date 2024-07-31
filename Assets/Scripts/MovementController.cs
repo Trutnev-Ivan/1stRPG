@@ -6,7 +6,7 @@ public class MovementController : MonoBehaviour
 {
 	private CameraController cameraController;
 	
-	[SerializeField] private Rigidbody PlayerMesh;
+	[SerializeField] private CharacterController PlayerMesh;
 	[SerializeField] private float speed = 800f;
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
 	[SerializeField] private float rotateSpeed45 = 20.0f;
@@ -42,12 +42,9 @@ public class MovementController : MonoBehaviour
 			// move forward / back
 			else
 			{
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward + PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
 			}
-			
-			// PlayerMesh.velocity = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
-			
-			// PlayerMesh.transform.Translate(PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed, Space.World);
+
 			vecTransorm = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
 		}
 		else if (horizontalMove != 0)
@@ -56,16 +53,13 @@ public class MovementController : MonoBehaviour
 			float k = horizontalMove * Time.deltaTime;
 
 			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeedHorizontal);
-			// PlayerMesh.velocity = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
 
-			// PlayerMesh.transform.Translate(PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove), Space.World);
 			vecTransorm = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
 		}
 		
 		cameraController.setPosition(PlayerMesh.transform.localPosition);
 
-		// PlayerMesh.velocity = new Vector3(PlayerMesh.velocity.x, Physics.gravity.y * PlayerMesh.mass, PlayerMesh.velocity.z);
-		PlayerMesh.transform.Translate(vecTransorm, Space.World);
+		PlayerMesh.Move(vecTransorm);
 	}
 
 	protected float getAngle(float vertical, float horizontal)
