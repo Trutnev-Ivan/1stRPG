@@ -7,6 +7,7 @@ public class MovementController : MonoBehaviour
 	private CameraController cameraController;
 	
 	[SerializeField] private CharacterController PlayerMesh;
+	[SerializeField] private float mass = 1; 
 	[SerializeField] private float speed = 800f;
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
 	[SerializeField] private float rotateSpeed45 = 20.0f;
@@ -14,6 +15,8 @@ public class MovementController : MonoBehaviour
 
 	void Start()
 	{
+		Debug.Log(Physics.gravity);
+		
 		cameraController = GetComponent<CameraController>();
 	}
 	
@@ -22,7 +25,7 @@ public class MovementController : MonoBehaviour
 		float verticalMove = Input.GetAxisRaw("Vertical");
 		float horizontalMove = Input.GetAxisRaw("Horizontal");
 
-		Vector3 vecTransorm = new Vector3(0, 0, 0);
+		Vector3 moveDirection = new Vector3(0, 0, 0);
 		
 		if (verticalMove != 0)
 		{
@@ -45,7 +48,7 @@ public class MovementController : MonoBehaviour
 				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
 			}
 
-			vecTransorm = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
+			moveDirection = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
 		}
 		else if (horizontalMove != 0)
 		{
@@ -54,12 +57,14 @@ public class MovementController : MonoBehaviour
 
 			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeedHorizontal);
 
-			vecTransorm = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
+			moveDirection = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
 		}
 		
 		cameraController.setPosition(PlayerMesh.transform.localPosition);
 
-		PlayerMesh.Move(vecTransorm);
+		moveDirection.y = mass * Physics.gravity.y * Time.deltaTime;
+
+		PlayerMesh.Move(moveDirection);
 	}
 
 	protected float getAngle(float vertical, float horizontal)

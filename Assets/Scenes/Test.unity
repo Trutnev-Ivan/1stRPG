@@ -444,7 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerMesh: {fileID: 1902039535}
-  speed: 2
+  speed: 6
   rotateSpeedForwardBack: 49
   rotateSpeed45: 20
   rotateSpeedHorizontal: 49.99
@@ -3527,10 +3527,10 @@ CharacterController:
   m_Height: 14.13
   m_Radius: 1.8
   m_SlopeLimit: 45
-  m_StepOffset: 0
+  m_StepOffset: 0.2
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 4.1, z: 0}
+  m_Center: {x: 0, y: 4.8, z: 0}
 --- !u!1001 &1951028811
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3557,7 +3557,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3bafebc35fc329d4196020722ab5829d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.265
+      value: 0.569
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 3bafebc35fc329d4196020722ab5829d, type: 3}
       propertyPath: m_LocalPosition.z
