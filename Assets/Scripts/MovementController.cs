@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(CameraController))]
@@ -12,12 +11,27 @@ public class MovementController : MonoBehaviour
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
 	[SerializeField] private float rotateSpeed45 = 20.0f;
 	[SerializeField] private float rotateSpeedHorizontal = 55.0f;
+	[SerializeField] private float maxJumpHeight = 5.0f;
+	[SerializeField] private float stepJump = 1;
+	
+	private Vector3 velocityY;
+	private bool isJumpingPressing;
+	private bool isJumping;
+	private bool needJump = true;
 
 	void Start()
 	{
-		Debug.Log(Physics.gravity);
-		
 		cameraController = GetComponent<CameraController>();
+	}
+
+	private void Update()
+	{
+		if (!isJumpingPressing && Input.GetKey(KeyCode.Space))
+		{
+			needJump = true;
+		}
+		
+		isJumpingPressing = Input.GetKey(KeyCode.Space);
 	}
 	
 	private void FixedUpdate()
@@ -26,6 +40,22 @@ public class MovementController : MonoBehaviour
 		float horizontalMove = Input.GetAxisRaw("Horizontal");
 
 		Vector3 moveDirection = new Vector3(0, 0, 0);
+		
+		if (PlayerMesh.isGrounded && isJumpingPressing && needJump)
+		{
+			velocityY.y = 0;
+			needJump = false;
+			isJumping = true;
+		}
+		else if (velocityY.y <= maxJumpHeight && isJumping)
+		{
+			velocityY.y += stepJump;
+		}
+		else if (velocityY.y > mass * Physics.gravity.y)
+		{
+			isJumping = false;
+			velocityY.y += mass * Physics.gravity.y;
+		}
 		
 		if (verticalMove != 0)
 		{
@@ -40,31 +70,30 @@ public class MovementController : MonoBehaviour
 					cameraForward.x * Mathf.Cos(angle) - cameraForward.z * Mathf.Sin(angle),
 					0,
 					cameraForward.z * Mathf.Cos(angle) + cameraForward.x * Mathf.Sin(angle));
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, vec, Time.deltaTime * rotateSpeed45);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, vec, rotateSpeed45);
 			}
 			// move forward / back
 			else
 			{
-				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), Time.deltaTime * rotateSpeedForwardBack);
+				PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, verticalMove * cameraController.getCameraForwardVector(), rotateSpeedForwardBack);
 			}
 
-			moveDirection = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * Time.deltaTime * speed;
+			moveDirection = PlayerMesh.transform.forward * Mathf.Abs(verticalMove) * speed;
 		}
 		else if (horizontalMove != 0)
 		{
 			Vector3 cameraForward = cameraController.getCameraForwardVector();
-			float k = horizontalMove * Time.deltaTime;
+			float k = horizontalMove;
 
-			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), Time.deltaTime * rotateSpeedHorizontal);
+			PlayerMesh.transform.forward = Vector3.MoveTowards(PlayerMesh.transform.forward, new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), rotateSpeedHorizontal);
 
-			moveDirection = PlayerMesh.transform.forward * Time.deltaTime * speed * Mathf.Abs(horizontalMove);
+			moveDirection = PlayerMesh.transform.forward * speed * Mathf.Abs(horizontalMove);
 		}
 		
 		cameraController.setPosition(PlayerMesh.transform.localPosition);
-
-		moveDirection.y = mass * Physics.gravity.y * Time.deltaTime;
-
-		PlayerMesh.Move(moveDirection);
+		
+		moveDirection.y = velocityY.y;
+		PlayerMesh.Move(moveDirection*Time.deltaTime);
 	}
 
 	protected float getAngle(float vertical, float horizontal)
@@ -86,4 +115,5 @@ public class MovementController : MonoBehaviour
 		
 		return angle;
 	}
+
 }
