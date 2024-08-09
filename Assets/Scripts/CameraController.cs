@@ -78,4 +78,15 @@ public class CameraController : MonoBehaviour
 		forward.y = 0;
 		return forward;
 	}
+
+	// Нормаль камеры в плоскости XZ (вокруг Y), повернутая на угол angle
+	public Vector3 getRotatedForwardXZ(float angle)
+	{
+		Vector3 cameraForward = getCameraForwardVector();
+		
+		return new Vector3(
+			cameraForward.x * Mathf.Cos(angle) - cameraForward.z * Mathf.Sin(angle),
+			0,
+			cameraForward.z * Mathf.Cos(angle) + cameraForward.x * Mathf.Sin(angle));
+	}
 }

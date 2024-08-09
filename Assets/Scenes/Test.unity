@@ -478,7 +478,7 @@ MonoBehaviour:
   rotateSpeed45: 20
   rotateSpeedHorizontal: 49.99
   maxJumpHeight: 21
-  stepJump: 1
+  stepJump: 4
 --- !u!1 &516948594
 GameObject:
   m_ObjectHideFlags: 0
@@ -2678,7 +2678,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1116992035}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 21.411587, y: 2.0340185, z: 8.439479}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
