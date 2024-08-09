@@ -479,6 +479,7 @@ MonoBehaviour:
   rotateSpeedHorizontal: 49.99
   maxJumpHeight: 21
   stepJump: 4
+  personSittingHeight: 10
 --- !u!1 &516948594
 GameObject:
   m_ObjectHideFlags: 0

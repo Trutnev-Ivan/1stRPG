@@ -14,36 +14,130 @@ public class MovementController : MonoBehaviour
 
 	private CameraController cameraController;
 	private Vector3 velocityY;
+	
 	private bool isJumpingPressing;
 	private bool isJumping;
 	private bool needJump = true;
+	
+	private bool isSitting;
+	private bool isSittingPressing;
+	private bool _needSitting;
+	private bool _needStand;
+	private bool needSittingKeyRelease;
+	
+	private float personHeight;
+	[SerializeField] private float personSittingHeight;
 
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
+		personHeight = PlayerMesh.height;
 	}
 
 	private void Update()
 	{
+		checkSitting();
 		checkJump();
 	}
 
 	private void checkJump()
 	{
-		if (!isJumpingPressing && Input.GetKey(KeyCode.Space))
+		if (_needStand)
+		{
+			isJumpingPressing = false;
+			needJump = false;
+
+			return;
+		}
+		
+		if (!isJumpingPressing && isAxisJumpPressed())
 		{
 			needJump = true;
 		}
 
-		isJumpingPressing = Input.GetKey(KeyCode.Space);
+		isJumpingPressing = isAxisJumpPressed();
 	}
 
+	private void checkSitting()
+	{
+		if (!needSittingKeyRelease && isAxisSittingPressed())
+		{
+			if (!isSitting)
+			{
+				_needSitting = true;
+				_needStand = false;
+			}
+			else
+			{
+				_needStand = true;
+				_needSitting = false;
+			}
+		}
+
+		if (isSitting && isAxisJumpPressed())
+		{
+			_needStand = true;
+		}
+
+		isSittingPressing = isAxisSittingPressed();
+
+		if (!isSittingPressing && needSittingKeyRelease)
+		{
+			needSittingKeyRelease = false;
+		}
+	}
+	
 	private void FixedUpdate()
 	{
-		Vector3 moveDirection = new Vector3(0, 0, 0);
+		applySitting();
+		applyMove();
+	}
 
+	protected void applySitting()
+	{
+		if (needSitting())
+		{
+			sit();
+		}
+		else if (needStand())
+		{
+			stand();
+		}
+	}
+
+	protected bool needSitting()
+	{
+		return PlayerMesh.isGrounded && isSittingPressing && _needSitting;
+	}
+
+	protected bool needStand()
+	{
+		return PlayerMesh.isGrounded && _needStand;
+	}
+
+	protected void sit()
+	{
+		PlayerMesh.height = personSittingHeight;
+		isSitting = true;
+		needSittingKeyRelease = true;
+	}
+
+	protected void stand()
+	{
+		PlayerMesh.height = personHeight;
+		isSitting = false;
+		_needStand = false;
+		
+		if (isSittingPressing)
+		{
+			needSittingKeyRelease = true;
+		}
+	}
+
+	protected void applyMove()
+	{
 		fillVerticalMove();
-		moveDirection = getMoveDirection();
+		Vector3 moveDirection = getMoveDirection();
 
 		if (!moveDirection.Equals(Vector3.zero))
 		{
@@ -55,7 +149,7 @@ public class MovementController : MonoBehaviour
 		moveDirection.y = velocityY.y;
 		PlayerMesh.Move(moveDirection * Time.deltaTime);
 	}
-
+	
 	protected void fillVerticalMove()
 	{
 		if (PlayerMesh.isGrounded && isJumpingPressing && needJump)
@@ -168,5 +262,15 @@ public class MovementController : MonoBehaviour
 	protected float getAxisHorizontalRaw()
 	{
 		return Input.GetAxisRaw("Horizontal");
+	}
+
+	protected bool isAxisJumpPressed()
+	{
+		return Input.GetAxisRaw("Jump") != 0;
+	}
+
+	protected bool isAxisSittingPressed()
+	{
+		return Input.GetAxisRaw("Fire1") != 0;
 	}
 }
