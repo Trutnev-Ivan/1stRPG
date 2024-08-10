@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
 	private CharacterController characterController;
-	private bool _canStandUp;
+	private bool _canStandUp = true;
 
 	void Start()
 	{
