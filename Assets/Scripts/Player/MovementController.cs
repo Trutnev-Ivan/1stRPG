@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(CameraController))]
 public class MovementController : MonoBehaviour
 {
-	[SerializeField] private CharacterController PlayerMesh;
+	[SerializeField] private PlayerController playerController;
 	[SerializeField] private float mass = 1;
 	[SerializeField] private float speed = 800f;
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
@@ -18,6 +18,7 @@ public class MovementController : MonoBehaviour
 	private bool isJumpingPressing;
 	private bool isJumping;
 	private bool needJump = true;
+	private bool needJumpingKeyRelease;
 	
 	private bool isSitting;
 	private bool isSittingPressing;
@@ -31,7 +32,7 @@ public class MovementController : MonoBehaviour
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
-		personHeight = PlayerMesh.height;
+		personHeight = playerController.getHeight();
 	}
 
 	private void Update()
@@ -50,12 +51,17 @@ public class MovementController : MonoBehaviour
 			return;
 		}
 		
-		if (!isJumpingPressing && isAxisJumpPressed())
+		if (!isJumpingPressing && isAxisJumpPressed() && !needJumpingKeyRelease)
 		{
 			needJump = true;
 		}
 
 		isJumpingPressing = isAxisJumpPressed();
+		
+		if (!isJumpingPressing && needJumpingKeyRelease)
+		{
+			needJumpingKeyRelease = false;
+		}
 	}
 
 	private void checkSitting()
@@ -99,7 +105,7 @@ public class MovementController : MonoBehaviour
 		{
 			sit();
 		}
-		else if (needStand())
+		else if (needStand() && playerController.canStandUp())
 		{
 			stand();
 		}
@@ -107,30 +113,36 @@ public class MovementController : MonoBehaviour
 
 	protected bool needSitting()
 	{
-		return PlayerMesh.isGrounded && isSittingPressing && _needSitting;
+		return playerController.isGrounded() && isSittingPressing && _needSitting;
 	}
 
 	protected bool needStand()
 	{
-		return PlayerMesh.isGrounded && _needStand;
+		return playerController.isGrounded() && _needStand;
 	}
 
 	protected void sit()
 	{
-		PlayerMesh.height = personSittingHeight;
+		playerController.setHeight(personSittingHeight);
 		isSitting = true;
 		needSittingKeyRelease = true;
 	}
 
 	protected void stand()
 	{
-		PlayerMesh.height = personHeight;
+		playerController.setHeight(personHeight);
 		isSitting = false;
+		needJump = false;
 		_needStand = false;
 		
 		if (isSittingPressing)
 		{
 			needSittingKeyRelease = true;
+		}
+
+		if (isAxisJumpPressed())
+		{
+			needJumpingKeyRelease = true;
 		}
 	}
 
@@ -141,24 +153,24 @@ public class MovementController : MonoBehaviour
 
 		if (!moveDirection.Equals(Vector3.zero))
 		{
-			PlayerMesh.transform.forward = moveDirection;
+			playerController.setTransformForward(moveDirection);
 		}
 		
-		cameraController.setPosition(PlayerMesh.transform.localPosition);
+		cameraController.setPosition(playerController.getLocalPosition());
 
 		moveDirection.y = velocityY.y;
-		PlayerMesh.Move(moveDirection * Time.deltaTime);
+		playerController.move(moveDirection * Time.deltaTime);
 	}
 	
 	protected void fillVerticalMove()
 	{
-		if (PlayerMesh.isGrounded && isJumpingPressing && needJump)
+		if (playerController.isGrounded() && isJumpingPressing && needJump && !needJumpingKeyRelease)
 		{
 			velocityY.y = 0;
 			needJump = false;
 			isJumping = true;
 		}
-		else if (velocityY.y <= maxJumpHeight && isJumping)
+		else if (velocityY.y <= maxJumpHeight && isJumping && !needJumpingKeyRelease)
 		{
 			velocityY.y += stepJump;
 		}
@@ -195,7 +207,7 @@ public class MovementController : MonoBehaviour
 	{
 		float angle = getAngle(getAxisVerticalRaw(), getAxisHorizontalRaw());
 		return Vector3.MoveTowards(
-			PlayerMesh.transform.forward,
+			playerController.getTransfromForward(),
 			cameraController.getRotatedForwardXZ(angle),
 			rotateSpeed45
 		);
@@ -223,7 +235,7 @@ public class MovementController : MonoBehaviour
 
 	protected Vector3 getVerticalMove()
 	{
-		return Vector3.MoveTowards(PlayerMesh.transform.forward,
+		return Vector3.MoveTowards(playerController.getTransfromForward(),
 			getAxisVerticalRaw() * cameraController.getCameraForwardVector(), rotateSpeedForwardBack);
 	}
 
@@ -233,7 +245,7 @@ public class MovementController : MonoBehaviour
 		float k = getAxisHorizontalRaw();
 
 		return Vector3.MoveTowards(
-			PlayerMesh.transform.forward,
+			playerController.getTransfromForward(),
 			new Vector3(k * cameraForward.z, 0, -k * cameraForward.x), 
 			rotateSpeedHorizontal
 		);
