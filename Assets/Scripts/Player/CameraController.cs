@@ -6,6 +6,7 @@ public class CameraController : MonoBehaviour
 	[SerializeField] private float cameraSpeedZoom = 100;
 	[SerializeField] private float cameraMoveSpeedX = 300;
 	[SerializeField] private float cameraMoveSpeedY = 800;
+	[SerializeField] private Vector3 velocitySmoothnes;
 
 	private float cameraPositionOffset = 0;
 	private float mouseRotationX;
@@ -14,6 +15,8 @@ public class CameraController : MonoBehaviour
 
 	const float MIN_CAMERA_POSITION = -7f;
 	const float MAX_CAMERA_POSITION = -4f;
+	
+	RaycastHit wallHit = new RaycastHit();
 
 	private Quaternion _rotation;
 
@@ -67,11 +70,32 @@ public class CameraController : MonoBehaviour
 		}
 	}
 
-	public void setPosition(Vector3 meshPosition)
+	public void setPosition(ref PlayerController playerController)
 	{
-		CameraPivot.transform.localPosition = meshPosition;
+		if (Physics.Linecast(playerCamera.transform.position, playerController.getGlobalPosition(), out wallHit))
+		{
+			CameraPivot.transform.position = smoothMove(
+				CameraPivot.transform.position,
+				new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
+			);
+		}
+		else
+		{
+			CameraPivot.transform.localPosition = smoothMove(
+				CameraPivot.transform.localPosition,
+				playerController.getLocalPosition()
+			);
+		}
 	}
 
+	protected Vector3 smoothMove(Vector3 from, Vector3 to)
+	{
+		return Vector3.SmoothDamp(from,
+			to,
+			ref velocitySmoothnes, 
+			Time.deltaTime);
+	}
+	
 	public Vector3 getCameraForwardVector()
 	{
 		Vector3 forward = CameraPivot.transform.forward;

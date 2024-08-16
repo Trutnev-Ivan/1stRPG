@@ -29,6 +29,7 @@ public class MovementController : MonoBehaviour
 	private float personHeight;
 	[SerializeField] private float personSittingHeight;
 
+	private bool isRunning;
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
@@ -37,6 +38,10 @@ public class MovementController : MonoBehaviour
 
 	private void Update()
 	{
+		if (Input.GetKeyDown(KeyCode.LeftShift)) {
+			isRunning = !isRunning;
+		}
+		
 		checkSitting();
 		checkJump();
 	}
@@ -156,7 +161,7 @@ public class MovementController : MonoBehaviour
 			playerController.setTransformForward(moveDirection);
 		}
 		
-		cameraController.setPosition(playerController.getLocalPosition());
+		cameraController.setPosition(ref playerController);
 
 		moveDirection.y = velocityY.y;
 		playerController.move(moveDirection * Time.deltaTime);

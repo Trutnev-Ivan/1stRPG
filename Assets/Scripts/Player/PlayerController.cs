@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
 	private CharacterController characterController;
 	private bool _canStandUp = true;
 
-	void Start()
+	void Awake()
 	{
 		characterController = GetComponent<CharacterController>();
 	}
@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
 	public Vector3 getTransfromForward() => characterController.transform.forward;
 
 	public Vector3 getLocalPosition() => characterController.transform.localPosition;
+
+	public Vector3 getGlobalPosition() => characterController.transform.position;
 
 	public bool canStandUp() => _canStandUp;
 	

@@ -465,6 +465,7 @@ MonoBehaviour:
   cameraSpeedZoom: 100
   cameraMoveSpeedX: 270
   cameraMoveSpeedY: 480
+  velocitySmoothnes: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!114 &341225236
 MonoBehaviour:
   m_ObjectHideFlags: 0
