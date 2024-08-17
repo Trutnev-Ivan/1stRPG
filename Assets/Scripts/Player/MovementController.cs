@@ -5,13 +5,21 @@ public class MovementController : MonoBehaviour
 {
 	[SerializeField] private PlayerController playerController;
 	[SerializeField] private float mass = 1;
-	[SerializeField] private float speed = 800f;
+	
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
 	[SerializeField] private float rotateSpeed45 = 20.0f;
 	[SerializeField] private float rotateSpeedHorizontal = 55.0f;
 	[SerializeField] private float maxJumpHeight = 5.0f;
 	[SerializeField] private float stepJump = 1;
 
+	[SerializeField] private float personSittingHeight;
+	
+	[Header("Speed")]
+	[SerializeField] private float moveSpeed = 800f;
+	[SerializeField] private float runSpeed = 800f;
+	[SerializeField] private float sittingSpeed = 800f;
+	[SerializeField] private float sittingRunSpeed = 800f;
+	
 	private CameraController cameraController;
 	private Vector3 velocityY;
 	
@@ -27,9 +35,9 @@ public class MovementController : MonoBehaviour
 	private bool needSittingKeyRelease;
 	
 	private float personHeight;
-	[SerializeField] private float personSittingHeight;
 
 	private bool isRunning;
+	
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
@@ -38,14 +46,18 @@ public class MovementController : MonoBehaviour
 
 	private void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.LeftShift)) {
-			isRunning = !isRunning;
-		}
-		
+		toggleRun();
 		checkSitting();
 		checkJump();
 	}
 
+	private void toggleRun()
+	{
+		if (Input.GetKeyDown(KeyCode.CapsLock)) {
+			isRunning = !isRunning;
+		}
+	}
+	
 	private void checkJump()
 	{
 		if (_needStand)
@@ -203,11 +215,25 @@ public class MovementController : MonoBehaviour
 			moveDirection = getHorizontalMove();
 		}
 		
-		moveDirection *= speed;
+		moveDirection *= getSpeed();
 		
 		return moveDirection;
 	}
 
+	protected float getSpeed()
+	{
+		if (isSitting && isRunning)
+			return sittingRunSpeed;
+
+		if (isSitting)
+			return sittingSpeed;
+
+		if (isRunning)
+			return runSpeed;
+		
+		return moveSpeed;
+	}
+	
 	protected Vector3 getMoveRotatedTo45()
 	{
 		float angle = getAngle(getAxisVerticalRaw(), getAxisHorizontalRaw());
