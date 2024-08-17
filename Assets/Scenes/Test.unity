@@ -425,6 +425,8 @@ GameObject:
   - component: {fileID: 341225234}
   - component: {fileID: 341225235}
   - component: {fileID: 341225236}
+  - component: {fileID: 341225237}
+  - component: {fileID: 341225238}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -479,14 +481,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 1902039536}
-  mass: 1
-  speed: 6
   rotateSpeedForwardBack: 49
   rotateSpeed45: 20
   rotateSpeedHorizontal: 49.99
+  moveSpeed: 5
+  runSpeed: 8
+  sittingSpeed: 2
+  sittingRunSpeed: 3
+--- !u!114 &341225237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341225229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a5ac9f1d4f6d2548b0bc240642d993a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  personSittingHeight: 10
+  playerController: {fileID: 1902039536}
+--- !u!114 &341225238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341225229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d885bfc84ca214d89782506b2b30a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerController: {fileID: 1902039536}
   maxJumpHeight: 21
   stepJump: 4
-  personSittingHeight: 10
 --- !u!1 &516948594
 GameObject:
   m_ObjectHideFlags: 0
@@ -3990,6 +4020,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0736b681e4a1d8d4698c3f4dcf5fe09a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mass: 1
 --- !u!1001 &1951028811
 PrefabInstance:
   m_ObjectHideFlags: 0

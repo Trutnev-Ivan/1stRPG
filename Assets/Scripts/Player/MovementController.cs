@@ -1,19 +1,14 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CameraController))]
+[RequireComponent(typeof(CameraController), typeof(SittingController), typeof(JumpingController))]
 public class MovementController : MonoBehaviour
 {
 	[SerializeField] private PlayerController playerController;
-	[SerializeField] private float mass = 1;
-	
+
 	[SerializeField] private float rotateSpeedForwardBack = 49.0f;
 	[SerializeField] private float rotateSpeed45 = 20.0f;
 	[SerializeField] private float rotateSpeedHorizontal = 55.0f;
-	[SerializeField] private float maxJumpHeight = 5.0f;
-	[SerializeField] private float stepJump = 1;
 
-	[SerializeField] private float personSittingHeight;
-	
 	[Header("Speed")]
 	[SerializeField] private float moveSpeed = 800f;
 	[SerializeField] private float runSpeed = 800f;
@@ -21,34 +16,21 @@ public class MovementController : MonoBehaviour
 	[SerializeField] private float sittingRunSpeed = 800f;
 	
 	private CameraController cameraController;
-	private Vector3 velocityY;
+	private SittingController sittingController;
+	private JumpingController jumpingController;
 	
-	private bool isJumpingPressing;
-	private bool isJumping;
-	private bool needJump = true;
-	private bool needJumpingKeyRelease;
-	
-	private bool isSitting;
-	private bool isSittingPressing;
-	private bool _needSitting;
-	private bool _needStand;
-	private bool needSittingKeyRelease;
-	
-	private float personHeight;
-
 	private bool isRunning;
 	
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
-		personHeight = playerController.getHeight();
+		sittingController = GetComponent<SittingController>();
+		jumpingController = GetComponent<JumpingController>();
 	}
 
 	private void Update()
 	{
 		toggleRun();
-		checkSitting();
-		checkJump();
 	}
 
 	private void toggleRun()
@@ -58,114 +40,13 @@ public class MovementController : MonoBehaviour
 		}
 	}
 	
-	private void checkJump()
-	{
-		if (_needStand)
-		{
-			isJumpingPressing = false;
-			needJump = false;
-
-			return;
-		}
-		
-		if (!isJumpingPressing && isAxisJumpPressed() && !needJumpingKeyRelease)
-		{
-			needJump = true;
-		}
-
-		isJumpingPressing = isAxisJumpPressed();
-		
-		if (!isJumpingPressing && needJumpingKeyRelease)
-		{
-			needJumpingKeyRelease = false;
-		}
-	}
-
-	private void checkSitting()
-	{
-		if (!needSittingKeyRelease && isAxisSittingPressed())
-		{
-			if (!isSitting)
-			{
-				_needSitting = true;
-				_needStand = false;
-			}
-			else
-			{
-				_needStand = true;
-				_needSitting = false;
-			}
-		}
-
-		if (isSitting && isAxisJumpPressed())
-		{
-			_needStand = true;
-		}
-
-		isSittingPressing = isAxisSittingPressed();
-
-		if (!isSittingPressing && needSittingKeyRelease)
-		{
-			needSittingKeyRelease = false;
-		}
-	}
-	
 	private void FixedUpdate()
 	{
-		applySitting();
 		applyMove();
-	}
-
-	protected void applySitting()
-	{
-		if (needSitting())
-		{
-			sit();
-		}
-		else if (needStand() && playerController.canStandUp())
-		{
-			stand();
-		}
-	}
-
-	protected bool needSitting()
-	{
-		return playerController.isGrounded() && isSittingPressing && _needSitting;
-	}
-
-	protected bool needStand()
-	{
-		return playerController.isGrounded() && _needStand;
-	}
-
-	protected void sit()
-	{
-		playerController.setHeight(personSittingHeight);
-		isSitting = true;
-		needSittingKeyRelease = true;
-	}
-
-	protected void stand()
-	{
-		playerController.setHeight(personHeight);
-		isSitting = false;
-		needJump = false;
-		_needStand = false;
-		
-		if (isSittingPressing)
-		{
-			needSittingKeyRelease = true;
-		}
-
-		if (isAxisJumpPressed())
-		{
-			needJumpingKeyRelease = true;
-		}
 	}
 
 	protected void applyMove()
 	{
-		fillVerticalMove();
 		Vector3 moveDirection = getMoveDirection();
 
 		if (!moveDirection.Equals(Vector3.zero))
@@ -175,27 +56,8 @@ public class MovementController : MonoBehaviour
 		
 		cameraController.setPosition(ref playerController);
 
-		moveDirection.y = velocityY.y;
+		moveDirection.y = jumpingController.getVerticalCoordinate();
 		playerController.move(moveDirection * Time.deltaTime);
-	}
-	
-	protected void fillVerticalMove()
-	{
-		if (playerController.isGrounded() && isJumpingPressing && needJump && !needJumpingKeyRelease)
-		{
-			velocityY.y = 0;
-			needJump = false;
-			isJumping = true;
-		}
-		else if (velocityY.y <= maxJumpHeight && isJumping && !needJumpingKeyRelease)
-		{
-			velocityY.y += stepJump;
-		}
-		else if (velocityY.y > mass * Physics.gravity.y)
-		{
-			isJumping = false;
-			velocityY.y += mass * Physics.gravity.y;
-		}
 	}
 
 	protected Vector3 getMoveDirection()
@@ -222,10 +84,10 @@ public class MovementController : MonoBehaviour
 
 	protected float getSpeed()
 	{
-		if (isSitting && isRunning)
+		if (sittingController.isSitting() && isRunning)
 			return sittingRunSpeed;
 
-		if (isSitting)
+		if (sittingController.isSitting())
 			return sittingSpeed;
 
 		if (isRunning)
@@ -305,15 +167,5 @@ public class MovementController : MonoBehaviour
 	protected float getAxisHorizontalRaw()
 	{
 		return Input.GetAxisRaw("Horizontal");
-	}
-
-	protected bool isAxisJumpPressed()
-	{
-		return Input.GetAxisRaw("Jump") != 0;
-	}
-
-	protected bool isAxisSittingPressed()
-	{
-		return Input.GetAxisRaw("Fire1") != 0;
 	}
 }

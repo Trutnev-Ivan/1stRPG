@@ -3,6 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+	[SerializeField] private float mass = 1;
+	
 	private CharacterController characterController;
 	private bool _canStandUp = true;
 
@@ -37,6 +39,8 @@ public class PlayerController : MonoBehaviour
 	public Vector3 getGlobalPosition() => characterController.transform.position;
 
 	public bool canStandUp() => _canStandUp;
+
+	public float getMass() => mass;
 	
 	void OnTriggerEnter(Collider other)
 	{
