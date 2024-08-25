@@ -56,7 +56,7 @@ public class JumpingController : MonoBehaviour
 		}
 		else if (y <= maxJumpHeight && IsJumping && !NeedJumpingKeyRelease)
 		{
-			y += stepJump;
+			y += 10 * stepJump * Time.deltaTime;
 		}
 		else if (y > playerController.getMass() * Physics.gravity.y)
 		{

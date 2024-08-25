@@ -93,7 +93,7 @@ public class CameraController : MonoBehaviour
 		return Vector3.SmoothDamp(from,
 			to,
 			ref velocitySmoothnes, 
-			Time.deltaTime);
+			10 * Time.deltaTime);
 	}
 	
 	public Vector3 getCameraForwardVector()

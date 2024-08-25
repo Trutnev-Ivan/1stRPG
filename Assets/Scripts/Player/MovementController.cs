@@ -19,8 +19,9 @@ public class MovementController : MonoBehaviour
 	private SittingController sittingController;
 	private JumpingController jumpingController;
 	
-	private bool isRunning;
-	
+	public bool IsRunning {get; private set;}
+	public bool IsMoving { get; private set; }
+
 	void Start()
 	{
 		cameraController = GetComponent<CameraController>();
@@ -30,13 +31,15 @@ public class MovementController : MonoBehaviour
 
 	private void Update()
 	{
+		IsMoving = getAxisHorizontalRaw() != 0 || getAxisVerticalRaw() != 0;
+
 		toggleRun();
 	}
 
 	private void toggleRun()
 	{
 		if (Input.GetKeyDown(KeyCode.CapsLock)) {
-			isRunning = !isRunning;
+			IsRunning = !IsRunning;
 		}
 	}
 	
@@ -84,13 +87,13 @@ public class MovementController : MonoBehaviour
 
 	protected float getSpeed()
 	{
-		if (sittingController.isSitting() && isRunning)
+		if (sittingController.isSitting() && IsRunning)
 			return sittingRunSpeed;
 
 		if (sittingController.isSitting())
 			return sittingSpeed;
 
-		if (isRunning)
+		if (IsRunning)
 			return runSpeed;
 		
 		return moveSpeed;
@@ -144,17 +147,17 @@ public class MovementController : MonoBehaviour
 		);
 	}
 
-	protected bool needRotateTo45()
+	public bool needRotateTo45()
 	{
 		return getAxisVerticalRaw() != 0 && getAxisHorizontalRaw() != 0;
 	}
 
-	protected bool needMoveVertical()
+	public bool needMoveVertical()
 	{
 		return getAxisVerticalRaw() != 0 && getAxisHorizontalRaw() == 0;
 	}
 
-	protected bool needMoveHorizontal()
+	public bool needMoveHorizontal()
 	{
 		return getAxisHorizontalRaw() != 0 && getAxisVerticalRaw() == 0;
 	}

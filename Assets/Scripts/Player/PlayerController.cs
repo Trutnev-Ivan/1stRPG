@@ -41,6 +41,16 @@ public class PlayerController : MonoBehaviour
 	public bool canStandUp() => _canStandUp;
 
 	public float getMass() => mass;
+
+	public float ColliderY
+	{
+		get => characterController.center.y;
+		set => characterController.center = new Vector3(
+			characterController.center.x,
+			value,
+			characterController.center.z
+			);
+	}
 	
 	void OnTriggerEnter(Collider other)
 	{

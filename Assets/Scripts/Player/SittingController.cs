@@ -5,6 +5,7 @@ public class SittingController : MonoBehaviour
 {
 	[SerializeField] private float personSittingHeight = 10;
 	[SerializeField] private PlayerController playerController;
+	[SerializeField] private float colliderY = 1;
 	
 	private bool _isSitting;
 	private bool isSittingPressing;
@@ -12,6 +13,7 @@ public class SittingController : MonoBehaviour
 	private bool _needStand;
 	private bool needSittingKeyRelease;
 	private float personHeight;
+	private float _colliderY;
 	
 	private JumpingController jumpingController;
 
@@ -19,6 +21,7 @@ public class SittingController : MonoBehaviour
 	{
 		jumpingController = GetComponent<JumpingController>();
 		personHeight = playerController.getHeight();
+		_colliderY = playerController.ColliderY;
 	}
 	
 	void Update()
@@ -65,6 +68,7 @@ public class SittingController : MonoBehaviour
 		playerController.setHeight(personSittingHeight);
 		_isSitting = true;
 		needSittingKeyRelease = true;
+		playerController.ColliderY = colliderY;
 	}
 
 	protected void stand()
@@ -73,6 +77,7 @@ public class SittingController : MonoBehaviour
 		_isSitting = false;
 		jumpingController.NeedJump = false;
 		_needStand = false;
+		playerController.ColliderY = _colliderY;
 		
 		if (isSittingPressing)
 		{
