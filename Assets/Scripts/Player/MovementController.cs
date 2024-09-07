@@ -12,6 +12,8 @@ public class MovementController : MonoBehaviour
 	[Header("Speed")]
 	[SerializeField] private float moveSpeed = 800f;
 	[SerializeField] private float runSpeed = 800f;
+	[SerializeField] private float fastRunSpeed = 800f;
+	[SerializeField] private float tiredFastRunSpeed = 800f;
 	[SerializeField] private float sittingSpeed = 800f;
 	[SerializeField] private float sittingRunSpeed = 800f;
 	
@@ -21,6 +23,7 @@ public class MovementController : MonoBehaviour
 	
 	public bool IsRunning {get; private set;}
 	public bool IsMoving { get; private set; }
+	public bool IsAccelerating { get; private set; }
 
 	void Start()
 	{
@@ -32,7 +35,7 @@ public class MovementController : MonoBehaviour
 	private void Update()
 	{
 		IsMoving = getAxisHorizontalRaw() != 0 || getAxisVerticalRaw() != 0;
-
+		IsAccelerating = isAccelerating();
 		toggleRun();
 	}
 
@@ -93,6 +96,12 @@ public class MovementController : MonoBehaviour
 		if (sittingController.isSitting())
 			return sittingSpeed;
 
+		if (IsAccelerating && playerController.Stamina > 0)
+			return fastRunSpeed;
+		
+		if (IsAccelerating && playerController.Stamina == 0)
+			return tiredFastRunSpeed;
+		
 		if (IsRunning)
 			return runSpeed;
 		
@@ -162,6 +171,11 @@ public class MovementController : MonoBehaviour
 		return getAxisHorizontalRaw() != 0 && getAxisVerticalRaw() == 0;
 	}
 	
+	public bool isAccelerating()
+	{
+		return getAxisAcceleratingRaw() != 0;
+	}
+	
 	protected float getAxisVerticalRaw()
 	{
 		return Input.GetAxisRaw("Vertical");
@@ -170,5 +184,10 @@ public class MovementController : MonoBehaviour
 	protected float getAxisHorizontalRaw()
 	{
 		return Input.GetAxisRaw("Horizontal");
+	}
+
+	protected float getAxisAcceleratingRaw()
+	{
+		return Input.GetAxisRaw("Accelerating");
 	}
 }

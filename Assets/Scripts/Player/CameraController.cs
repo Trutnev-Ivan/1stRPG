@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -19,7 +20,8 @@ public class CameraController : MonoBehaviour
 	RaycastHit wallHit = new RaycastHit();
 
 	private Quaternion _rotation;
-
+	private PlayerController pc;
+	
 	void Start()
 	{
 		playerCamera = GetComponentInChildren<Camera>();
@@ -69,23 +71,65 @@ public class CameraController : MonoBehaviour
 			playerCamera.transform.Translate(0, 0, cameraPositionOffset);
 		}
 	}
-
+	
 	public void setPosition(ref PlayerController playerController)
 	{
-		if (Physics.Linecast(playerCamera.transform.position, playerController.getGlobalPosition(), out wallHit))
+		
+		UnityEngine.Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, 1);
+
+		// if (Physics.Linecast(playerCamera.transform.position, playerController.getGlobalPosition(), out wallHit))
+		// if (colliders.Length > 0)
+		// {
+		// 	Vector3 closestPoint = colliders[0].ClosestPointOnBounds(playerCamera.transform.position);
+		// 	
+		// 	if (Vector3.Distance(closestPoint, playerController.getGlobalPosition()) < 5)
+		// 	{
+		// 		CameraPivot.transform.position = smoothMove(
+		// 			CameraPivot.transform.position,
+		// 			// new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
+		// 			colliders[0].ClosestPointOnBounds(playerCamera.transform.position)
+		// 		);
+		// 	}
+		// 	else
+		// 	{
+		// 		CameraPivot.transform.position = smoothMove(
+		// 			CameraPivot.transform.position,
+		// 			// new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
+		// 			closestPoint - ( new Vector3(0, 0, 5))
+		// 		);				
+		// 	}
+		//
+		// 	// playerCamera.transform.localPosition = new Vector3(0, 0, Vector3.Distance(transform.position, wallHit.point));
+		// }
+
+		CameraPivot.transform.localPosition = smoothMove(
+			CameraPivot.transform.localPosition,
+			playerController.getLocalPosition()
+		);
+
+		int minDistance = 2;
+		int maxDistance = 10;
+		
+		Vector3 desiredPos = CameraPivot.transform.TransformPoint(playerCamera.transform.localPosition.normalized * maxDistance);
+		float distance = maxDistance;
+		
+		Debug.DrawLine(CameraPivot.transform.position + new Vector3(0, playerController.getHeight() / 2, 0), desiredPos, Color.red);
+		
+		if (Physics.Linecast(CameraPivot.transform.position + new Vector3(0, 0, playerController.getHeight() / 2), desiredPos, out wallHit))
 		{
-			CameraPivot.transform.position = smoothMove(
-				CameraPivot.transform.position,
-				new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
-			);
+			distance = Mathf.Clamp(wallHit.distance, minDistance, maxDistance);
+			
 		}
 		else
 		{
-			CameraPivot.transform.localPosition = smoothMove(
-				CameraPivot.transform.localPosition,
-				playerController.getLocalPosition()
-			);
+			
+			// CameraPivot.transform.localPosition = smoothMove(
+				// CameraPivot.transform.localPosition,
+				// playerController.getLocalPosition()
+			// );
 		}
+
+		playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, playerCamera.transform.localPosition.normalized * distance, Time.deltaTime * 10);
 	}
 
 	protected Vector3 smoothMove(Vector3 from, Vector3 to)

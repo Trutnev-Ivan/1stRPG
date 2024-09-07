@@ -1,18 +1,39 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
 	[SerializeField] private float mass = 1;
+	[SerializeField] private float stamina = 10;
+	[SerializeField] private float stepStaminaDecrease = 0.01f;
+	[SerializeField] private MovementController movementController;
 	
 	private CharacterController characterController;
 	private bool _canStandUp = true;
+	public float Stamina {get; protected set; }
 
 	void Awake()
 	{
 		characterController = GetComponent<CharacterController>();
+		Stamina = stamina;
 	}
-	
+
+	private void Update()
+	{
+		if (movementController.IsAccelerating && movementController.IsMoving && Stamina > 0)
+		{
+			Stamina -= stepStaminaDecrease * Time.deltaTime;
+			Stamina = Math.Max(Stamina, 0);
+		}
+
+		if ((!movementController.IsAccelerating || !movementController.IsMoving) && Stamina < stamina)
+		{
+			Stamina += stepStaminaDecrease * Time.deltaTime;
+			Stamina = Math.Min(Stamina, stamina);
+		}
+	}
+
 	public void setHeight(float height)
 	{
 		characterController.height = height;

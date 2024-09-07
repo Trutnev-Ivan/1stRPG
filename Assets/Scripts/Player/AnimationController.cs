@@ -28,5 +28,6 @@ public class AnimationController : MonoBehaviour
 		playerAnimator.SetBool("isJumping", jumpingController.IsJumping);
 		playerAnimator.SetBool("isGrounded", playerController.isGrounded());
 		playerAnimator.SetBool("isSitting", sittingController.isSitting());
+		playerAnimator.SetBool("isAccelerating", movementController.IsAccelerating);
 	}
 }
