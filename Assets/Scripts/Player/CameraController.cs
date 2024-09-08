@@ -1,5 +1,6 @@
-using System;
 using UnityEngine;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 public class CameraController : MonoBehaviour
 {
@@ -13,20 +14,21 @@ public class CameraController : MonoBehaviour
 	private float mouseRotationX;
 	private float mouseRotationY;
 	private Camera playerCamera;
+	private bool canZoom = true;
 
-	const float MIN_CAMERA_POSITION = -7f;
-	const float MAX_CAMERA_POSITION = -4f;
+	const float MIN_CAMERA_POSITION = -4f;
+	const float MAX_CAMERA_POSITION = -3f;
 	
 	RaycastHit wallHit = new RaycastHit();
 
 	private Quaternion _rotation;
-	private PlayerController pc;
+	private Vector3 cameraPosition;
 	
 	void Start()
 	{
 		playerCamera = GetComponentInChildren<Camera>();
-
 		cameraPositionOffset = playerCamera.transform.position.z;
+		
 		if (cameraPositionOffset < MIN_CAMERA_POSITION)
 		{
 			cameraPositionOffset = MIN_CAMERA_POSITION;
@@ -35,6 +37,13 @@ public class CameraController : MonoBehaviour
 		{
 			cameraPositionOffset = MAX_CAMERA_POSITION;
 		}
+		
+		playerCamera.transform.localPosition = new Vector3(
+			playerCamera.transform.localPosition.x, 
+			playerCamera.transform.localPosition.y, 
+			cameraPositionOffset);
+		
+		cameraPosition = playerCamera.transform.localPosition;
 	}
 	
 	void Update()
@@ -66,70 +75,36 @@ public class CameraController : MonoBehaviour
 		bool canCloserCamera = cameraPositionOffset < 0 && playerCamera.transform.localPosition.z > MIN_CAMERA_POSITION;
 		bool canAwayCamera = cameraPositionOffset > 0 && playerCamera.transform.localPosition.z < MAX_CAMERA_POSITION;
 
-		if (canAwayCamera || canCloserCamera)
+		if (canZoom && (canAwayCamera || canCloserCamera))
 		{
 			playerCamera.transform.Translate(0, 0, cameraPositionOffset);
+			cameraPosition = playerCamera.transform.localPosition;
 		}
 	}
 	
 	public void setPosition(ref PlayerController playerController)
 	{
-		
-		UnityEngine.Collider[] colliders = Physics.OverlapSphere(playerCamera.transform.position, 1);
-
-		// if (Physics.Linecast(playerCamera.transform.position, playerController.getGlobalPosition(), out wallHit))
-		// if (colliders.Length > 0)
-		// {
-		// 	Vector3 closestPoint = colliders[0].ClosestPointOnBounds(playerCamera.transform.position);
-		// 	
-		// 	if (Vector3.Distance(closestPoint, playerController.getGlobalPosition()) < 5)
-		// 	{
-		// 		CameraPivot.transform.position = smoothMove(
-		// 			CameraPivot.transform.position,
-		// 			// new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
-		// 			colliders[0].ClosestPointOnBounds(playerCamera.transform.position)
-		// 		);
-		// 	}
-		// 	else
-		// 	{
-		// 		CameraPivot.transform.position = smoothMove(
-		// 			CameraPivot.transform.position,
-		// 			// new Vector3(wallHit.point.x, wallHit.point.y, wallHit.point.z)
-		// 			closestPoint - ( new Vector3(0, 0, 5))
-		// 		);				
-		// 	}
-		//
-		// 	// playerCamera.transform.localPosition = new Vector3(0, 0, Vector3.Distance(transform.position, wallHit.point));
-		// }
-
 		CameraPivot.transform.localPosition = smoothMove(
 			CameraPivot.transform.localPosition,
 			playerController.getLocalPosition()
 		);
 
 		int minDistance = 2;
-		int maxDistance = 10;
+		int maxDistance = 5;
 		
 		Vector3 desiredPos = CameraPivot.transform.TransformPoint(playerCamera.transform.localPosition.normalized * maxDistance);
-		float distance = maxDistance;
-		
-		Debug.DrawLine(CameraPivot.transform.position + new Vector3(0, playerController.getHeight() / 2, 0), desiredPos, Color.red);
 		
 		if (Physics.Linecast(CameraPivot.transform.position + new Vector3(0, 0, playerController.getHeight() / 2), desiredPos, out wallHit))
 		{
-			distance = Mathf.Clamp(wallHit.distance, minDistance, maxDistance);
-			
+			float _distance = Mathf.Clamp(wallHit.distance, minDistance, maxDistance);
+			playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, playerCamera.transform.localPosition.normalized * _distance, Time.deltaTime * 10);
+			canZoom = false;
 		}
 		else
 		{
-			
-			// CameraPivot.transform.localPosition = smoothMove(
-				// CameraPivot.transform.localPosition,
-				// playerController.getLocalPosition()
-			// );
+			canZoom = true;
+			playerCamera.transform.localPosition = cameraPosition;
 		}
-
-		playerCamera.transform.localPosition = Vector3.Lerp(playerCamera.transform.localPosition, playerCamera.transform.localPosition.normalized * distance, Time.deltaTime * 10);
 	}
 
 	protected Vector3 smoothMove(Vector3 from, Vector3 to)
