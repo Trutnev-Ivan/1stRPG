@@ -9,7 +9,8 @@ public class CameraController : MonoBehaviour
 	[SerializeField] private float cameraMoveSpeedX = 300;
 	[SerializeField] private float cameraMoveSpeedY = 800;
 	[SerializeField] private Vector3 velocitySmoothnes;
-
+	[SerializeField ]private PlayerController pc;
+	
 	private float cameraPositionOffset = 0;
 	private float mouseRotationX;
 	private float mouseRotationY;
