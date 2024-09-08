@@ -444,7 +444,7 @@ Transform:
   m_GameObject: {fileID: 341225229}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -16.953524, y: 5.43, z: -0.44}
+  m_LocalPosition: {x: -16.953524, y: 0.95, z: -0.75}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -469,6 +469,7 @@ MonoBehaviour:
   cameraMoveSpeedX: 270
   cameraMoveSpeedY: 480
   velocitySmoothnes: {x: 0.5, y: 0.5, z: 0.5}
+  pc: {fileID: 355107213}
 --- !u!114 &341225236
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -487,6 +488,8 @@ MonoBehaviour:
   rotateSpeedHorizontal: 49.99
   moveSpeed: 5
   runSpeed: 8
+  fastRunSpeed: 12
+  tiredFastRunSpeed: 8
   sittingSpeed: 2
   sittingRunSpeed: 3
 --- !u!114 &341225237
@@ -556,6 +559,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mass: 0.8
+  stamina: 5
+  stepStaminaDecrease: 1
+  movementController: {fileID: 341225236}
 --- !u!143 &355107214
 CharacterController:
   m_ObjectHideFlags: 0
@@ -3173,7 +3179,7 @@ Transform:
   m_GameObject: {fileID: 1116992035}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.411587, y: 2.0340185, z: 8.439479}
+  m_LocalPosition: {x: 20.96, y: -0.11, z: 14.69}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
